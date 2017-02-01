@@ -145,10 +145,17 @@ func (t *transmission) start() {
 	}
 	dsVariables := strings.Join(dsVariablesPairs, ",")
 
+	translate := gofaxlib.Config.Freeswitch.Translate
+	translateTo := gofaxlib.Config.Freeswitch.TranslateTo
+
 	// Try gateways in configured order
 	dsGatewaysStrings := make([]string, len(t.faxjob.Gateways))
 	for i, gw := range t.faxjob.Gateways {
-		dsGatewaysStrings[i] = fmt.Sprintf("sofia/gateway/%v/%v", gw, t.faxjob.Number)
+		if translate {
+			dsGatewaysStrings[i] = fmt.Sprintf("sofia/gateway/%v/${translate(%v %v)}", gw, t.faxjob.Number, translateTo)
+		} else {
+			dsGatewaysStrings[i] = fmt.Sprintf("sofia/gateway/%v/%v", gw, t.faxjob.Number)
+		}
 	}
 	dsGateways := strings.Join(dsGatewaysStrings, "|")
 
@@ -157,7 +164,7 @@ func (t *transmission) start() {
 
 	// Originate call
 	t.sessionlog.Log("Originating channel to", t.faxjob.Number, "using gateway", strings.Join(t.faxjob.Gateways, ","))
-	_, err = t.conn.Send(fmt.Sprintf("api originate %v, &txfax(%v)", dialstring, t.faxjob.Filename))
+	_, err = t.conn.Send(fmt.Sprintf("api expand originate %v, &txfax(%v)", dialstring, t.faxjob.Filename))
 	if err != nil {
 		t.conn.Send(fmt.Sprintf("uuid_dump %v", t.faxjob.UUID))
 		hangupcause := strings.TrimSpace(err.Error())

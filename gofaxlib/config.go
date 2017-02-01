@@ -40,6 +40,8 @@ type config struct {
 		Verbose           bool
 		DisableT38        bool
 		SoftmodemFallback bool
+		Translate         bool
+		TranslateTo       string
 	}
 	Hylafax struct {
 		Spooldir   string
