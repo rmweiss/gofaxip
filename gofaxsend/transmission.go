@@ -122,8 +122,9 @@ func (t *transmission) start() {
 	dsVariablesMap := map[string]string{
 		"ignore_early_media":           "true",
 		"origination_uuid":             t.faxjob.UUID.String(),
-		"origination_caller_id_number": t.faxjob.Cidnum,
-		"origination_caller_id_name":   t.faxjob.Cidname,
+		// "origination_caller_id_number": t.faxjob.Cidnum,
+		// "origination_caller_id_name":   t.faxjob.Cidname,
+		"sip_from_uri":                 fmt.Sprintf("sip:%v@${local_ip_v4}", t.faxjob.Cidnum),
 		"fax_ident":                    t.faxjob.Ident,
 		"fax_header":                   t.faxjob.Header,
 		"fax_use_ecm":                  strconv.FormatBool(t.faxjob.UseECM),
